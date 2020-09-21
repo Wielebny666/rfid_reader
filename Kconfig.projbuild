@@ -1,0 +1,80 @@
+menu "RFID Configuration"
+
+    config RFID_QUEUE_SIZE
+        int "RFID Queue Size"
+        default "1"
+        range 1 10
+        help
+            RFID queue size.
+
+
+	menu "AS3933 Pin Configuration"
+
+        choice AS3933_SPI_SELECT
+            prompt "Select SPI Port"
+            default AS3933_VSPI
+        
+            config AS3933_HSPI
+                bool "Select HSPI"
+
+            config AS3933_VSPI
+                bool "Select VSPI"
+
+        endchoice
+
+        config AS3933_SPI_NUM
+            int
+            default 1 if AS3933_HSPI
+            default 2 if AS3933_VSPI
+
+        config AS3933_SPI_CLOCK
+            int "AS3933 SPI Clock"
+            range 0 40000000
+            default 5000000
+
+        config AS3933_MISO_GPIO
+            int "AS3933 MISO GPIO"
+            range 0 39
+            default 19
+            
+        config AS3933_MOSI_GPIO
+            int "AS3933 MOSI GPIO"
+            range 0 39
+            default 23
+
+        config AS3933_CLK_GPIO
+            int "AS3933 CLK GPIO"
+            range 0 39
+            default 28
+
+        config AS3933_1_CS_GPIO
+            int "AS3933 1 CS GPIO"
+            range 0 39
+            default 21
+
+        config AS3933_1_DATA_GPIO
+            int "AS3933 1 DATA GPIO"
+            range 0 39
+            default 26
+
+        config AS3933_1_W_UP_GPIO
+            int "AS3933 1 W_UP GPIO"
+            range 0 39
+            default 27
+            
+         config AS3933_2_CS_GPIO
+            int "AS3933 2 CS GPIO"
+            range 0 39
+            default 22
+
+        config AS3933_2_DATA_GPIO
+            int "AS3933 2 DATA GPIO"
+            range 0 39
+            default 33
+
+        config AS3933_2_W_UP_GPIO
+            int "AS3933 2 W_UP GPIO"
+            range 0 39
+            default 25
+    endmenu
+endmenu
