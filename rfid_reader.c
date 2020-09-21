@@ -53,8 +53,7 @@ typedef enum
 	RFID_DESTROY,
 	RFID_QUEUE_CREATE_FAIL,
 	RFID_CFG_ALLOC_FAIL,
-	RFID_HWD_INIT_FAIL,
-	RFID_GPIO_INIT_FAIL,
+	RFID_DRV_INIT_FAIL,
 	RFID_TASK_CREATE_FAIL,
 } rfid_rollback_t;
 
@@ -63,7 +62,7 @@ typedef enum
  **********************/
 static as3933_cfg_t *as3933_cfg; //[RFID_MAX] = RFID_CONFIG;
 static void rfid_control_task(void *pvParameter __attribute__((unused)));
-static void IRAM_ATTR w_up(bool value);
+static void IRAM_ATTR rfid_wake_up(bool value);
 static esp_err_t rfid_rollback(rfid_rollback_t step);
 
 /**********************
@@ -98,11 +97,11 @@ DEFINE_ENUM(rfid_response_event_id_t, RFID_RESPONSE_ENUM);
 #define RFID_BOOL_EVENT_SEND(g_id, g_arg)	\
 		if (rfid_get_callback == NULL)		\
 		return;				\
+		ESP_LOGI(TAG, "RFID event send %s", get_rfid_response_event_id_t_string(g_id)); \
 		rfid_event_t event;			\
 		event.resp = g_id;		\
 		event.arg.boolean = g_arg; 		\
 		rfid_get_callback(event);
-//ESP_LOGI(TAG, "RFID event send %s", get_rfid_response_event_id_t_string(g_id));
 
 #define RFID_UINTX_EVENT_SEND(g_id, g_arg, type)	\
 		if (rfid_get_callback == NULL)		\
@@ -148,27 +147,9 @@ esp_err_t rfid_create(void)
 
 	if (as3933_drv_handle[RFID_1] == NULL)// || as3933_drv_handle[RFID_2] == NULL)
 	{
-		rfid_rollback(RFID_HWD_INIT_FAIL);
+		rfid_rollback(RFID_DRV_INIT_FAIL);
 		return ESP_FAIL;
 	}
-
-//	if (GPIO_IS_VALID_GPIO(as3933_cfg[RFID_1].data) && GPIO_IS_VALID_GPIO(as3933_cfg[RFID_2].data))
-//	{
-//		gpio_config_t data_in_conf =
-//			{
-//				.mode = GPIO_MODE_INPUT,
-//				.pin_bit_mask = (1ULL << as3933_cfg[RFID_1].data) | (1ULL << as3933_cfg[RFID_2].data),
-//				.pull_down_en = GPIO_PULLDOWN_ENABLE,
-//				.pull_up_en = GPIO_PULLDOWN_DISABLE, };
-//
-//		esp_err_t err = gpio_config(&data_in_conf);
-//
-//		if (err == ESP_FAIL)
-//		{
-//			rfid_rollback(RFID_GPIO_INIT_FAIL);
-//			return ESP_FAIL;
-//		}
-//	}
 
 	portBASE_TYPE res = xTaskCreatePinnedToCore(rfid_control_task, "rfid_reader_task", 2048, NULL, configMAX_PRIORITIES - 1, &rfid_task_handle, 0);
 
@@ -302,9 +283,9 @@ static void rfid_control_task(void *pvParameter __attribute__((unused)))
 						evt.arg.uint8 = RFID_2;
 
 					if (evt.arg.uint8 == RFID_1)
-						resp = as3933_w_up_intr_init(CONFIG_AS3933_1_W_UP_GPIO, w_up);
+						resp = as3933_w_up_intr_init(CONFIG_AS3933_1_W_UP_GPIO, rfid_wake_up);
 					else if (evt.arg.uint8 == RFID_2)
-						resp = as3933_w_up_intr_init(CONFIG_AS3933_2_W_UP_GPIO, w_up);
+						resp = as3933_w_up_intr_init(CONFIG_AS3933_2_W_UP_GPIO, rfid_wake_up);
 
 					if (resp != ESP_OK)
 					{
@@ -461,22 +442,21 @@ static esp_err_t rfid_rollback(rfid_rollback_t step)
 		case RFID_TASK_CREATE_FAIL:
 			if (step == RFID_TASK_CREATE_FAIL)
 				ESP_LOGE(TAG, "RFID TASK CREATE FAIL");
-			if (GPIO_IS_VALID_GPIO(as3933_cfg[RFID_1].data) && GPIO_IS_VALID_GPIO(as3933_cfg[RFID_2].data))
+
+			if (as3933_drv_handle[RFID_1] != NULL)
 			{
-				gpio_reset_pin(as3933_cfg[RFID_1].data);
-				gpio_reset_pin(as3933_cfg[RFID_2].data);
+				as3933_destroy(as3933_drv_handle[RFID_1], false);
+				as3933_drv_handle[RFID_1] = NULL;
+			}
+
+			if (as3933_drv_handle[RFID_2] != NULL)
+			{
+				as3933_destroy(as3933_drv_handle[RFID_2], false);
+				as3933_drv_handle[RFID_2] = NULL;
 			}
 			/* no break */
-		case RFID_GPIO_INIT_FAIL:
-			if (step == RFID_GPIO_INIT_FAIL)
-				ESP_LOGE(TAG, "RFID GPIO INIT FAIL");
-			as3933_destroy(as3933_drv_handle[RFID_1], false);
-			as3933_drv_handle[RFID_1] = NULL;
-			as3933_destroy(as3933_drv_handle[RFID_2], false);
-			as3933_drv_handle[RFID_2] = NULL;
-			/* no break */
-		case RFID_HWD_INIT_FAIL:
-			if (step == RFID_HWD_INIT_FAIL)
+		case RFID_DRV_INIT_FAIL:
+			if (step == RFID_DRV_INIT_FAIL)
 				ESP_LOGE(TAG, "RFID HWD INIT FAIL");
 			free(as3933_cfg);
 			/* no break */
@@ -498,7 +478,7 @@ static esp_err_t rfid_rollback(rfid_rollback_t step)
 	return ESP_FAIL;
 }
 
-static void IRAM_ATTR w_up(bool value)
+static void IRAM_ATTR rfid_wake_up(bool value)
 {
 	ESP_EARLY_LOGD(TAG, "%s", __FUNCTION__);
 	CHECK((rfid_task_handle != NULL), , "RFID TASK NOT EXIST");
