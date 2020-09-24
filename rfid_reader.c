@@ -512,7 +512,7 @@ static esp_err_t rfid_rollback(rfid_rollback_t step)
 
 static void IRAM_ATTR rfid_wake_up(bool value)
 {
-	ESP_EARLY_LOGD(TAG, "%s", __FUNCTION__);
+	//ESP_EARLY_LOGD(TAG, "%s", __FUNCTION__);
 	CHECK((rfid_task_handle != NULL), , "RFID TASK NOT EXIST");
 	CHECK((rfid_queue_handle != NULL), , "RFID QUEUE NOT EXIST");
 
