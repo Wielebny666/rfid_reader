@@ -492,7 +492,7 @@ static void IRAM_ATTR rfid_wake_up(bool value)
 	rfid_evt.cmd.get = RFID_EVENT_W_UP;
 	rfid_evt.arg.boolean = value;
 
-	if (xQueueOverwriteFromISR(rfid_queue_handle, &rfid_evt, &pxHigherPriorityTaskWoken) == errQUEUE_FULL)
+	if (xQueueSendToBackFromISR(rfid_queue_handle, &rfid_evt, &pxHigherPriorityTaskWoken) == errQUEUE_FULL)
 	{
 		ESP_EARLY_LOGW(TAG, "RFID QUEUE IS FULL");
 	}
