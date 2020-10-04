@@ -151,7 +151,7 @@ esp_err_t rfid_create(void)
 		return ESP_FAIL;
 	}
 
-	portBASE_TYPE res = xTaskCreatePinnedToCore(rfid_control_task, "rfid_reader_task", 2048, NULL, configMAX_PRIORITIES - 1, &rfid_task_handle, 0);
+	portBASE_TYPE res = xTaskCreatePinnedToCore(rfid_control_task, "rfid_reader_task", 1024 * 3, NULL, configMAX_PRIORITIES - 1, &rfid_task_handle, 0);
 
 	if (res == pdFAIL || rfid_task_handle == NULL)
 	{
