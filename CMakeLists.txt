@@ -1,4 +1,4 @@
-set(SOURCES rfid_reader.c )
+set(SOURCES "rfid_reader.c" )
 
 idf_component_register(SRCS "${SOURCES}"
 					INCLUDE_DIRS .
