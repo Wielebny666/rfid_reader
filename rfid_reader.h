@@ -108,10 +108,10 @@ typedef struct
 
 typedef union
 {
-	bool boolean;
-	uint8_t uint8;
-	uint16_t uint16;
-	uint32_t uint32;
+	bool _boolean;
+	uint8_t _uint8;
+	uint16_t _uint16;
+	uint32_t _uint32;
 }rfid_event_parametr_t;
 
 typedef struct
