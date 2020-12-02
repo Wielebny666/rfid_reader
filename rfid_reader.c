@@ -100,7 +100,7 @@ DEFINE_ENUM(rfid_response_event_id_t, RFID_RESPONSE_ENUM);
 	ESP_LOGI(TAG, "RFID event send %s", get_rfid_response_event_id_t_string(g_id)); \
 	rfid_event_t event;                                                             \
 	event.resp = g_id;                                                              \
-	event.arg._boolean = g_arg;                                                      \
+	event.arg._boolean = g_arg;                                                     \
 	rfid_get_callback(event);
 
 #define RFID_UINTX_EVENT_SEND(g_id, g_arg, type)                                    \
@@ -109,7 +109,7 @@ DEFINE_ENUM(rfid_response_event_id_t, RFID_RESPONSE_ENUM);
 	ESP_LOGI(TAG, "RFID event send %s", get_rfid_response_event_id_t_string(g_id)); \
 	rfid_event_t event;                                                             \
 	event.resp = g_id;                                                              \
-	event.arg._uint##type = g_arg;                                                   \
+	event.arg._uint##type = g_arg;                                                  \
 	rfid_get_callback(event);
 
 #define RFID_UINT8_EVENT_SEND(g_id, g_arg) \
@@ -304,11 +304,6 @@ static void rfid_control_task(void *pvParameter __attribute__((unused)))
 			as3933_reset_rssi();
 			break;
 		}
-		case RFID_SET_AGC:
-		{
-			as3933_set_disable_agc(evt.arg._boolean);
-			break;
-		}
 		case RFID_SET_FREQ_TOLERANCE:
 		{
 			if (evt.arg._uint8 > 3)
@@ -341,6 +336,11 @@ static void rfid_control_task(void *pvParameter __attribute__((unused)))
 		case RFID_SET_DISABLE_AGC:
 		{
 			as3933_set_disable_agc(evt.arg._boolean);
+			break;
+		}
+		case RFID_SET_AGC_FIRST_CARRIER:
+		{
+			as3933_set_agc_first_carrier(evt.arg._boolean);
 			break;
 		}
 		case RFID_SET_ANTENA_DUMPER_ENABLE:
