@@ -35,17 +35,17 @@ menu "RFID Configuration"
         config AS3933_MISO_GPIO
             int "AS3933 MISO GPIO"
             range 0 39
-            default 19
+            default 25
             
         config AS3933_MOSI_GPIO
             int "AS3933 MOSI GPIO"
             range 0 39
-            default 23
+            default 27
 
         config AS3933_CLK_GPIO
             int "AS3933 CLK GPIO"
             range 0 39
-            default 28
+            default 26
 
         config AS3933_1_CS_GPIO
             int "AS3933 1 CS GPIO"
@@ -55,12 +55,12 @@ menu "RFID Configuration"
         config AS3933_1_DATA_GPIO
             int "AS3933 1 DATA GPIO"
             range 0 39
-            default 26
+            default 5
 
         config AS3933_1_W_UP_GPIO
             int "AS3933 1 W_UP GPIO"
             range 0 39
-            default 27
+            default 17
             
          config AS3933_2_CS_GPIO
             int "AS3933 2 CS GPIO"
@@ -70,11 +70,11 @@ menu "RFID Configuration"
         config AS3933_2_DATA_GPIO
             int "AS3933 2 DATA GPIO"
             range 0 39
-            default 33
+            default 4
 
         config AS3933_2_W_UP_GPIO
             int "AS3933 2 W_UP GPIO"
             range 0 39
-            default 25
+            default 16
     endmenu
 endmenu
