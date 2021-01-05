@@ -412,6 +412,32 @@ static void rfid_control_task(void *pvParameter __attribute__((unused)))
 			as3933_set_bitrate(evt.arg._uint8);
 			break;
 		}
+		case RFID_SET_DATA_SLICER:
+		{
+			as3933_set_data_slicer(evt.arg._boolean);
+			break;
+		}
+		case RFID_SET_DATA_SLICER_THR_REDUCTION:
+		{
+			as3933_set_data_slicer_threshold_reduction(evt.arg._boolean);
+			break;
+		}
+		case RFID_SET_FAST_ENVELOPE_DETECTOR:
+		{
+			as3933_set_envelop_detector(evt.arg._uint8);
+			break;
+		}
+		case RFID_SET_AGC_UP_AND_DOWN:
+		{
+			as3933_set_agc_up_and_down(evt.arg._boolean);
+			break;
+		}
+		case RFID_SET_ARTIFICIAL_WAKE_UP:
+		{
+			as3933_set_artificial_wake_up(evt.arg._uint8);
+			break;
+		}
+
 		default:
 			break;
 		}
