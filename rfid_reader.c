@@ -407,6 +407,11 @@ static void rfid_control_task(void *pvParameter __attribute__((unused)))
 			as3933_band_select(evt.arg._uint8);
 			break;
 		}
+		case RFID_SET_MANCHESTER:
+		{
+			as3933_set_manchaster_decode(evt.arg._boolean);
+			break;
+		}
 		case RFID_SET_BITRATE:
 		{
 			as3933_set_bitrate(evt.arg._uint8);
@@ -427,6 +432,11 @@ static void rfid_control_task(void *pvParameter __attribute__((unused)))
 			as3933_set_envelop_detector(evt.arg._uint8);
 			break;
 		}
+case RFID_SET_MIN_PREAMBLE_LENGTH:
+		{
+			as3933_set_min_preamble_length(evt.arg._uint8);
+			break;
+		}
 		case RFID_SET_AGC_UP_AND_DOWN:
 		{
 			as3933_set_agc_up_and_down(evt.arg._boolean);
@@ -434,7 +444,7 @@ static void rfid_control_task(void *pvParameter __attribute__((unused)))
 		}
 		case RFID_SET_ARTIFICIAL_WAKE_UP:
 		{
-			as3933_set_artificial_wake_up(evt.arg._uint8);
+			// as3933_set_artificial_wake_up(evt.arg._uint8);
 			break;
 		}
 
